@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="ThemeHouse_ConvSearch" title="[⌂] Conversation Search" version_string="1.1.1" version_id="1447261019" url="http://xf.themehouse.io/" install_callback_class="ThemeHouse_Install" install_callback_method="install" uninstall_callback_class="ThemeHouse_Install" uninstall_callback_method="uninstall">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="controller_pre_dispatch" execute_order="10" callback_class="ThemeHouse_Listener_ControllerPreDispatch" callback_method="controllerPreDispatch" active="1" hint="" description=""/>
+    <listener event_id="file_health_check" execute_order="10" callback_class="ThemeHouse_ConvSearch_Listener_FileHealthCheck" callback_method="fileHealthCheck" active="1" hint="" description=""/>
+    <listener event_id="init_dependencies" execute_order="10" callback_class="ThemeHouse_Listener_InitDependencies" callback_method="initDependencies" active="1" hint="" description=""/>
+    <listener event_id="load_class" execute_order="10" callback_class="ThemeHouse_ConvSearch_Listener_LoadClass" callback_method="loadClassModel" active="0" hint="XenForo_Model_Conversation" description="XenForo_Model_Conversation (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="10" callback_class="ThemeHouse_ConvSearch_Listener_LoadClass" callback_method="loadClassDataWriter" active="0" hint="XenForo_DataWriter_ConversationMaster" description="XenForo_DataWriter_ConversationMaster (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="10" callback_class="ThemeHouse_ConvSearch_Listener_LoadClass" callback_method="loadClassDataWriter" active="0" hint="XenForo_DataWriter_ConversationMessage" description="XenForo_DataWriter_ConversationMessage (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="ThemeHouse_ConvSearch_Listener_LoadClass" callback_method="loadClassDataWriter" active="1" hint="" description="(For XenForo 1.1 and below)" compatibility_switch="1"/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="ThemeHouse_ConvSearch_Listener_LoadClass" callback_method="loadClassModel" active="1" hint="" description="(For XenForo 1.1 and below)" compatibility_switch="1"/>
+    <listener event_id="template_hook" execute_order="10" callback_class="ThemeHouse_ConvSearch_Listener_TemplateHook" callback_method="templateHook" active="1" hint="" description="(For XenForo 1.1 and below)" compatibility_switch="1"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups/>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="conversation_by" version_id="0" version_string="1.0.0"><![CDATA[Conversation by]]></phrase>
+    <phrase title="conversation_message_by" version_id="0" version_string="1.0.0"><![CDATA[Conversation message by]]></phrase>
+    <phrase title="display_results_as_conversations" version_id="0" version_string="1.0.0"><![CDATA[Display results as conversations]]></phrase>
+    <phrase title="search_conversations" version_id="0" version_string="1.0.0"><![CDATA[Search Conversations]]></phrase>
+    <phrase title="search_conversations_started_by_this_member_only" version_id="0" version_string="1.0.0"><![CDATA[Search conversations started by this member only]]></phrase>
+    <phrase title="th_search_conversations_only_convsearch" version_id="1420461489" version_string="1.1.0"><![CDATA[Search conversations only]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates>
+    <template title="search_form_conversation_message" version_id="0" version_string="1.0.0"><![CDATA[<xen:title>{xen:phrase search_conversations}</xen:title>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:link full:search}">{xen:phrase search}</xen:breadcrumb>
+</xen:navigation>
+
+<form action="{xen:link 'search/search'}" method="conversationMessage" class="xenForm AutoValidator"
+	data-optInOut="optIn"
+	data-redirect="true">
+
+	<xen:include template="search_form_tabs" />
+	
+	<xen:if is="{$search.conversation}">
+		<xen:require css="search_form_conversationMessage.css" />
+		<dl class="ctrlUnit" id="conversationConstraint">
+			<dt>{xen:phrase search_only_in_conversation}:</dt>
+			<dd><a href="javascript:" title="{xen:phrase remove_filter}" id="TitleRemove">x</a>
+				<a href="{xen:link conversations, $search.conversation}" class="title">{$search.conversation.title}</a>
+				<input type="hidden" name="conversation_id" value="{$search.conversation.conversation_id}" /></dd>
+		</dl>
+	</xen:if>
+	
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_keywords">{xen:phrase keywords}:</label></dt>
+		<dd>
+			<ul>
+				<li><input type="search" name="keywords" value="{$search.keywords}" results="0" class="textCtrl" id="ctrl_keywords" autofocus="true" /></li>
+				<li><label for="ctrl_title_only"><input type="checkbox" name="title_only" id="ctrl_title_only" value="1" {xen:checked '{$search.title_only}'} /> {xen:phrase search_titles_only}</label></li>
+			</ul>
+		</dd>
+	</dl>
+
+	<fieldset>
+		<dl class="ctrlUnit">
+			<dt><label for="ctrl_users">{xen:phrase posted_by_member}:</label></dt>
+			<dd>
+				<ul>
+					<li>
+						<input type="text" name="users" value="{$search.users}" class="textCtrl AutoComplete" id="ctrl_users" />
+						<p class="explain">{xen:phrase separate_names_with_comma}</p>
+					</li>
+					<li><label><input type="checkbox" name="user_content" value="conversation" {xen:checked '{$search.user_content} == "conversation"'} /> {xen:phrase search_conversations_started_by_this_member_only}</label></li>
+				</ul>
+			</dd>
+		</dl>
+	</fieldset>
+
+	<fieldset>
+		<dl class="ctrlUnit">
+			<dt><label for="ctrl_date">{xen:phrase newer_than}:</label></dt>
+			<dd>
+				<input type="date" name="date" value="{$search.date}" class="textCtrl" id="ctrl_date" />
+			</dd>
+		</dl>
+	
+		<dl class="ctrlUnit">
+			<dt><label for="ctrl_reply_count">{xen:phrase minimum_number_of_replies}:</label></dt>
+			<dd>
+				<!-- Chrome does horrible things with input:number -->
+				<input type="number" name="reply_count" value="{$search.reply_count}" class="textCtrl" id="ctrl_reply_count" min="0" step="5" />
+			</dd>
+		</dl>
+	</fieldset>
+	
+	<xen:if hascontent="true">
+	<fieldset>
+	<xen:contentcheck>
+	<xen:if is="{$prefixes}">		
+		<dl class="ctrlUnit">
+			<dt><label for="ctrl_prefixes">{xen:phrase conversation_prefixes}:</label></dt>
+			<dd><select name="prefixes[]" class="textCtrl" size="5" multiple="multiple" id="ctrl_prefixes">
+				<option value=""{xen:selected '!{$search.prefixes}'}>({xen:phrase any})</option>
+				<xen:foreach loop="$prefixes" key="$prefixGroupId" value="$_prefixes">
+					<xen:if is="{$prefixGroupId}">
+					<optgroup label="{xen:helper conversationPrefixGroup, $prefixGroupId}">
+						<xen:foreach loop="$_prefixes" key="$prefixId" value="$prefix">
+							<option value="{$prefixId}"{xen:selected '{$search.prefixes.{$prefixId}}'}>{$prefix.title}</option>
+						</xen:foreach>
+					</optgroup>
+					<xen:else />
+						<xen:foreach loop="$_prefixes" key="$prefixId" value="$prefix">
+							<option value="{$prefixId}"{xen:selected '{$search.prefixes.{$prefixId}}'}>{$prefix.title}</option>
+						</xen:foreach>
+					</xen:if>	
+				</xen:foreach>
+			</select></dd>
+		</dl>			
+	</xen:if>
+	</xen:contentcheck>
+	</fieldset>
+	</xen:if>
+
+	<dl class="ctrlUnit">
+		<dt><label>{xen:phrase order_by}:</label></dt>
+		<dd>
+			<ul>
+				<li><label for="ctrl_order_date"><input type="radio" name="order" id="ctrl_order_date" value="date"{xen:checked '{$search.order} == "date"'} /> {xen:phrase most_recent}</label></li>
+				<li><label for="ctrl_order_replies"><input type="radio" name="order" id="ctrl_order_replies" value="replies"{xen:checked '{$search.order} == "replies"'} /> {xen:phrase most_replies}</label></li>
+				<xen:if is="{$supportsRelevance}"><li><label for="ctrl_order_relevance"><input type="radio" name="order" id="ctrl_order_relevance" value="relevance"{xen:checked '{$search.order} == "relevance"'} /> {xen:phrase relevance}</label></li></xen:if>
+			</ul>
+		</dd>
+	</dl>
+
+	<dl class="ctrlUnit">
+		<dt></dt>
+		<dd><label for="ctrl_group_discussion"><input type="checkbox" name="group_discussion" id="ctrl_group_discussion" value="1"{xen:checked '{$search.group_discussion}'} /> {xen:phrase display_results_as_conversations}</label></dd>
+	</dl>
+
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd><input type="submit" value="{xen:phrase search}" accesskey="s" class="button primary" /></dd>
+	</dl>
+
+	<input type="hidden" name="type" value="conversation_message" />
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+	
+	<script>
+	
+	$(function()
+	{
+		$('#TitleRemove').click(function(e)
+		{
+			$(this).closest('dl.ctrlUnit').xfRemove();
+		});
+	});
+	
+	</script>
+</form>]]></template>
+    <template title="search_result_conversation" version_id="1379718261" version_string="1.0.3"><![CDATA[<li id="conversation-{$conversation.conversation_id}" class="searchResult conversation primaryContent{xen:if $conversation.isIgnored, ' ignored'}" data-author="{$conversation.username}">
+
+	<div class="listBlock posterAvatar"><xen:avatar user="$conversation" size="s" img="true" /></div>
+
+	<div class="listBlock main">
+		<div class="titleText">
+			<span class="contentType">{xen:phrase conversation}</span>
+			<h3 class="title{xen:if {$conversation.isNew}, ' new'}"><a href="{xen:link conversations, $conversation, 'conversation_user_id={xen:if '{$conversation.owner_user_id} != {$visitor.user_id}', {$conversation.owner_user_id}}'}">{xen:helper conversationPrefix, $conversation}{xen:helper highlight, $conversation.title, $search.search_query, 'highlight'}</a></h3>
+		</div>
+
+		<blockquote class="snippet">
+			<a href="{xen:link conversations, $conversation, 'conversation_user_id={xen:if '{$conversation.owner_user_id} != {$visitor.user_id}', {$conversation.owner_user_id}}'}">{xen:helper snippet, $conversationMessage.message, 150, {xen:array 'term={$search.search_query}', 'emClass=highlight', 'stripQuotes=1'}}</a>
+		</blockquote>
+
+		<div class="meta">
+			{xen:phrase conversation_by}: <xen:username user="$conversation" />,
+			<xen:datetime time="$conversation.message_date" />,
+			{xen:phrase x_replies, 'count={xen:number $conversation.reply_count}'}
+		</div>
+	</div>
+
+</li>]]></template>
+    <template title="search_result_conversation_message" version_id="1379605934" version_string="1.0.1"><![CDATA[<li id="conversationMessage-{$conversationMessage.message_id}" class="searchResult conversationMessage primaryContent" data-author="{$conversationMessage.username}">
+
+	<div class="listBlock postAvatar"><xen:avatar user="$conversationMessage" size="s" img="true" /></div>
+
+	<div class="listBlock main">
+		<div class="titleText">
+			<span class="contentType">{xen:phrase conversation_message}</span>
+			<h3 class="title{xen:if {$thread.isNew}, ' new'}"><a href="{xen:link conversations, $conversation, 'conversation_user_id={xen:if '{$conversation.owner_user_id} != {$visitor.user_id}', {$conversation.owner_user_id}}'}">{xen:helper conversationPrefix, $conversation}{xen:helper highlight, $conversation.title, $search.search_query, 'highlight'}</a></h3>
+		</div>
+
+		<blockquote class="snippet">
+			<a href="{xen:link conversations, $conversation, 'conversation_user_id={xen:if '{$conversation.owner_user_id} != {$visitor.user_id}', {$conversation.owner_user_id}}'}">{xen:helper snippet, $conversationMessage.message, 150, {xen:array 'term={$search.search_query}', 'emClass=highlight', 'stripQuote=1'}}</a>
+		</blockquote>
+
+		<div class="meta">
+			{xen:phrase conversation_message_by}: <xen:username user="$conversationMessage" />,
+			<xen:datetime time="{$conversationMessage.message_date}" />
+		</div>
+	</div>
+</li>]]></template>
+    <template title="th_search_bar_conversation_only_convsearch" version_id="1379765704" version_string="1.0.4"><![CDATA[<label title="{xen:phrase th_search_conversations_only_convsearch}"><input type="checkbox" name="type" value="conversation"
+	id="search_bar_conversations" checked="checked" /> {xen:phrase th_search_conversations_only_convsearch}</label>]]></template>
+    <template title="th_search_form_tabs_convsearch" version_id="0" version_string="1.0.0"><![CDATA[<li{xen:if "{$searchType} == 'conversation_message'", ' class="active"'}><a href="{xen:link search, '', 'type=conversation_message'}">{xen:phrase search_conversations}</a></li>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="conversation_list" modification_key="th_conversationList_convSearch" description="Adds conversation search to conversation list." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#$#]]></find>
+      <replace><![CDATA[<xen:container var="$searchBar.conversation"><xen:include template="th_search_bar_conversation_only_convsearch" /></xen:container>]]></replace>
+    </modification>
+    <modification template="conversation_view" modification_key="th_conversationView_convSearch" description="Adds conversation search to conversation view." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#$#]]></find>
+      <replace><![CDATA[<xen:container var="$searchBar.conversation"><xen:include template="th_search_bar_conversation_only_convsearch" /></xen:container>]]></replace>
+    </modification>
+    <modification template="footer" modification_key="th_copyrightNotice_convSearch" description="Copyright notice for [⌂] Conversation Search" execution_order="1" enabled="1" action="callback">
+      <find><![CDATA[/{xen:phrase (?:xenforo|extra)_copyright}/]]></find>
+      <replace><![CDATA[ThemeHouse_Listener_InitDependencies::copyrightNotice]]></replace>
+    </modification>
+    <modification template="search_form_tabs" modification_key="th_searchFormTabs_convSearch" description="Adds conversations search tab to search form tabs." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<xen:hook name="search_form_tabs">.*)(</xen:hook>)#Us]]></find>
+      <replace><![CDATA[${1}
+<xen:include template="th_search_form_tabs_convsearch" />
+${2}]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
